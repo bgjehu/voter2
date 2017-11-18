@@ -33,11 +33,13 @@ const vote = async (id) => {
     }
 };
 
+
+const coolDown = parseInt(process.env.COOL_DOWN) || 15 * 60 * 1000;
 const voteAndWait = () => setTimeout(async ()=>{
     await vote(468);
     await vote(471);
     voteAndWait();
-}, parseInt(process.env.COOL_DOWN));
+}, coolDown);
 
 voteAndWait();
 
