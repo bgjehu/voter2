@@ -6,12 +6,14 @@
   "author": "Jay <bgjehu@me.com>",
   "license": "MIT",
   "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
     "cookie": "^0.3.1",
     "express": "^4.16.2",
+    "luxon": "^0.0.19",
     "request": "^2.83.0",
     "request-promise": "^4.2.2"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node src/index.js"
   }
 }
