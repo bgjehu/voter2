@@ -13,7 +13,7 @@ const timestamp = () => {
     const localTime = DateTime.local();
     const cn = localTime.setZone('Asia/Shanghai');
     const us = localTime.setZone('America/Chicago');
-    return `${cn.day}日${cn.hour}时${cn.minute}分 (${us.toISO()})`;
+    return `(${cn.toISO()}) (${us.toISO()})`;
 };
 
 const tryVote = async (id, max = 3) => {

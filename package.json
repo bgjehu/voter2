@@ -1,6 +1,6 @@
 {
   "name": "voter2",
-  "version": "1.0.0",
+  "version": "0.1.1",
   "main": "index.js",
   "repository": "https://github.com/bgjehu/voter2.git",
   "author": "Jay <bgjehu@me.com>",
