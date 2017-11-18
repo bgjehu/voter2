@@ -5,3 +5,4 @@ WORKDIR /app
 ADD . .
 RUN yarn
 #CMD env > /etc/environment && service cron start && service cron status && crontab .crontab && crontab -l && npm start
+CMD npm start
