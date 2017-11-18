@@ -33,7 +33,10 @@ const vote = async (id) => {
     }
 };
 
-new CronJob('* */15 * * * *', async () => {
+const voteAndWait = () => setTimeout(async ()=>{
     await vote(468);
     await vote(471);
-}, null, true, 'America/Chicago');
+    voteAndWait();
+}, parseInt(process.env.COOL_DOWN));
+
+voteAndWait();
