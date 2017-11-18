@@ -2,7 +2,7 @@
  * Created by Jay on 2017/11/16.
  */
 const {parse} = require('cookie');
-const {CronJob} = require('cron');
+const express = require('express');
 const {stringify} = require('qs');
 const {get, post} = require('request-promise');
 
@@ -40,3 +40,9 @@ const voteAndWait = () => setTimeout(async ()=>{
 }, parseInt(process.env.COOL_DOWN));
 
 voteAndWait();
+
+const app = express();
+app.get('*', (req, res)=>{
+    res.sendStatus(200);
+});
+app.listen(3000);

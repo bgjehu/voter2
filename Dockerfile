@@ -1,4 +1,5 @@
 FROM node:8.7.0
+EXPOSE 3000
 #RUN apt-get update && apt-get install -y cron
 RUN mkdir /app
 WORKDIR /app
