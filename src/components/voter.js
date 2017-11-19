@@ -16,6 +16,19 @@ const timestamp = () => {
     return `(${cn.toISO()}) (${us.toISO()})`;
 };
 
+const tryMore = (fn, max = 3, self) => {
+    return async (...args) => {
+        let count = 0;
+        while (count < max) {
+            try {
+                return await fn.bind(self)(...args);
+            } catch (_) {
+                count++;
+            }
+        }
+    };
+};
+
 const tryVote = async (id, max = 3) => {
     let voted = false;
     let tried = 0;
@@ -65,7 +78,7 @@ const voteRec = async () => {
         }
     }
     const randomCoolDown = randomInt(coolDown.min, coolDown.max) * 60 * 1000;
-    setTimeout(voteRec, randomCoolDown);
+    setTimeout(tryMore(voteRec), randomCoolDown);
 };
 
-module.exports = voteRec;
+module.exports = tryMore(voteRec);
