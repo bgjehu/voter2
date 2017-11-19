@@ -16,19 +16,6 @@ const timestamp = () => {
     return `(${cn.toISO()}) (${us.toISO()})`;
 };
 
-const tryMore = (fn, max = 3, self) => {
-    return async (...args) => {
-        let count = 0;
-        while (count < max) {
-            try {
-                return await fn.bind(self)(...args);
-            } catch (_) {
-                count++;
-            }
-        }
-    };
-};
-
 const tryVote = async (id, max = 3) => {
     let voted = false;
     let tried = 0;
@@ -40,45 +27,47 @@ const tryVote = async (id, max = 3) => {
 };
 
 const voteRec = async () => {
-    // early return for out of operation time
-    const {hour} = DateTime.local().setZone('Asia/Shanghai');
-    if (hour > 23 || hour < 7) {
-        console.log(`${timestamp()} out of operation hours`);
-        setTimeout(voteRec, 1 * 60 * 1000);
-        return;
-    }
+    try {
+        // early return for out of operation time
+        const {hour} = DateTime.local().setZone('Asia/Shanghai');
+        if (hour > 23 || hour < 7) {
+            console.log(`${timestamp()} out of operation hours`);
+            setTimeout(voteRec, 1 * 60 * 1000);
+            return;
+        }
 
-    const desires = [{id: 468, rank: 1}, {id: 471, rank: 4}];
+        const desires = [{id: 468, rank: 1}, {id: 471, rank: 4}];
+        const ranks = await getRanks();
+        // rankItem {id, rank, vote}
+        for (let desire of desires) {
+            // init
+            let desireVote = null;
+            const currentVote = ranks.find(i => i.id === desire.id).vote;
+            // diff strategy for diff desire rank
+            if (desire.rank === 1) {
+                const rankOneVote = ranks.find(i => i.rank === 1).vote;
+                desireVote = randomInt(rankOneVote, rankOneVote + 200);
+            } else {
+                const desireRankMinusOneVote = ranks.find(i => i.rank === (desire.rank - 1)).vote;
+                const desireRankVote = ranks.find(i => i.rank === desire.rank).vote;
+                const diff = desireRankMinusOneVote - desireRankVote;
+                const oneForthDiff = Math.floor(diff / 4);
+                desireVote = randomInt(desireRankVote + oneForthDiff, desireRankMinusOneVote - oneForthDiff);
+            }
+            if (desireVote - currentVote > 500) {
+                await tryVote(desire.id);
+                await tryVote(desire.id);
+            } else {
+                await tryVote(desire.id);
+            }
+        }
+    } catch (_) {}
     const coolDown = {
         min: (parseInt(process.env.MIN_COOLDOWN_IN_MIN) || 5),
         max: (parseInt(process.env.MAX_COOLDOWN_IN_MIN) || 15)
     };
-    const ranks = await getRanks();
-    // rankItem {id, rank, vote}
-    for (let desire of desires) {
-        // init
-        let desireVote = null;
-        const currentVote = ranks.find(i => i.id === desire.id).vote;
-        // diff strategy for diff desire rank
-        if (desire.rank === 1) {
-            const rankOneVote = ranks.find(i => i.rank === 1).vote;
-            desireVote = randomInt(rankOneVote, rankOneVote + 200);
-        } else {
-            const desireRankMinusOneVote = ranks.find(i => i.rank === (desire.rank - 1)).vote;
-            const desireRankVote = ranks.find(i => i.rank === desire.rank).vote;
-            const diff = desireRankMinusOneVote - desireRankVote;
-            const oneForthDiff = Math.floor(diff / 4);
-            desireVote = randomInt(desireRankVote + oneForthDiff, desireRankMinusOneVote - oneForthDiff);
-        }
-        if (desireVote - currentVote > 500) {
-            await tryVote(desire.id);
-            await tryVote(desire.id);
-        } else {
-            await tryVote(desire.id);
-        }
-    }
     const randomCoolDown = randomInt(coolDown.min, coolDown.max) * 60 * 1000;
-    setTimeout(tryMore(voteRec), randomCoolDown);
+    setTimeout(voteRec, randomCoolDown);
 };
 
-module.exports = tryMore(voteRec);
+module.exports = voteRec;
